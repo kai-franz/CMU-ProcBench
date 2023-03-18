@@ -1,46 +1,52 @@
-create or replace function maxPurchaseChannel(ckey int, fromDateSk int, toDateSk int)
-returns varchar (50)
-language plpgsql
-as
+CREATE OR REPLACE FUNCTION maxPurchaseChannel(ckey INT, fromDateSk INT, toDateSk INT)
+    RETURNS VARCHAR(50)
+    LANGUAGE plpgsql
+AS
 $$
-declare
- numSalesFromStore int;
- numSalesFromCatalog int;
- numSalesFromWeb int;
- maxChannel varchar(50);
-begin
-	select count(*) into numSalesFromStore
-							from store_sales_history
-							where ss_customer_sk = ckey and
-							ss_sold_date_sk>=fromDateSk and
-							ss_sold_date_sk<=toDateSk;
-	
-	select count(*) into numSalesFromCatalog
-							from catalog_sales_history
-							where cs_bill_customer_sk = ckey and
-							cs_sold_date_sk>=fromDateSk and
-							cs_sold_date_sk<=toDateSk;
-	
-	select count(*) into numSalesFromWeb
-							from web_sales_history
-							where ws_bill_customer_sk = ckey and
-							ws_sold_date_sk>=fromDateSk and
-							ws_sold_date_sk<=toDateSk;
+DECLARE
+    numSalesFromStore   INT;
+    numSalesFromCatalog INT;
+    numSalesFromWeb     INT;
+    maxChannel          VARCHAR(50);
+BEGIN
+    SELECT COUNT(*)
+      INTO numSalesFromStore
+      FROM store_sales_history
+     WHERE ss_customer_sk = ckey
+       AND ss_sold_date_sk >= fromDateSk
+       AND ss_sold_date_sk <= toDateSk;
 
-	if(numSalesFromStore>numSalesFromCatalog)then
+    SELECT COUNT(*)
+      INTO numSalesFromCatalog
+      FROM catalog_sales_history
+     WHERE cs_bill_customer_sk = ckey
+       AND cs_sold_date_sk >= fromDateSk
+       AND cs_sold_date_sk <= toDateSk;
+
+    SELECT COUNT(*)
+      INTO numSalesFromWeb
+      FROM web_sales_history
+     WHERE ws_bill_customer_sk = ckey
+       AND ws_sold_date_sk >= fromDateSk
+       AND ws_sold_date_sk <= toDateSk;
+
+    IF (numSalesFromStore > numSalesFromCatalog) THEN
         maxChannel := 'Store';
-		if(numSalesfromWeb>numSalesFromStore)then
-			maxChannel := 'Web';
-        end if;
-	else
-		maxChannel := 'Catalog';
-		if(numSalesfromWeb>numSalesFromCatalog)then
-			maxChannel := 'Web';
-		end if;
-	end if;
-	
-	return maxChannel;									
-end;
+        IF (numSalesfromWeb > numSalesFromStore) THEN
+            maxChannel := 'Web';
+        END IF;
+    ELSE
+        maxChannel := 'Catalog';
+        IF (numSalesfromWeb > numSalesFromCatalog) THEN
+            maxChannel := 'Web';
+        END IF;
+    END IF;
+
+    RETURN maxChannel;
+END;
 $$;
 
-select c_customer_sk, maxPurchaseChannel(c_customer_sk, (select min(d_date_sk) from date_dim where d_year = 2000), (select max(d_date_sk) from date_dim where d_year = 2020)) as channel from customer
+SELECT c_customer_sk,
+       maxPurchaseChannel(c_customer_sk, (SELECT MIN(d_date_sk) FROM date_dim WHERE d_year = 2000),
+                          (SELECT MAX(d_date_sk) FROM date_dim WHERE d_year = 2020)) AS channel
+  FROM customer

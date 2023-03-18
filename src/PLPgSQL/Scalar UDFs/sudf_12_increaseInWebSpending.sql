@@ -1,55 +1,60 @@
 --Of the customers who purchased from web in both years 2000 and 2001, find positive increase in spending from one year to the other.
 
-create or replace function increaseInWebSpending(cust_sk int)
-returns decimal
-language plpgsql
-as
+CREATE OR REPLACE FUNCTION increaseInWebSpending(cust_sk INT)
+    RETURNS DECIMAL
+    LANGUAGE plpgsql
+AS
 $$
-declare
-    spending1  decimal;
-	spending2  decimal;
-	increase  decimal;
-begin
-	spending1:=0;
-    spending2:=0;
-    increase:=0;
-    
-	select sum(ws_net_paid_inc_ship_tax) into spending1 
-    from web_sales_history, date_dim
-    where d_date_sk = ws_sold_date_sk
-        and d_year = 2001
-        and ws_bill_customer_sk=cust_sk;
-        
-	select sum(ws_net_paid_inc_ship_tax)  into spending2
-    from web_sales_history, date_dim
-    where d_date_sk = ws_sold_date_sk
-        and d_year = 2000
-        and ws_bill_customer_sk=cust_sk;
-        
-	if(spending1<spending2) then
-		return -1;
-	else
-		increase := spending1-spending2;
-    end if;
-	return increase;
+DECLARE
+    spending1 DECIMAL;
+    spending2 DECIMAL;
+    increase  DECIMAL;
+BEGIN
+    spending1 := 0;
+    spending2 := 0;
+    increase := 0;
 
-end;
+    SELECT SUM(ws_net_paid_inc_ship_tax)
+      INTO spending1
+      FROM web_sales_history,
+           date_dim
+     WHERE d_date_sk = ws_sold_date_sk
+       AND d_year = 2001
+       AND ws_bill_customer_sk = cust_sk;
+
+    SELECT SUM(ws_net_paid_inc_ship_tax)
+      INTO spending2
+      FROM web_sales_history,
+           date_dim
+     WHERE d_date_sk = ws_sold_date_sk
+       AND d_year = 2000
+       AND ws_bill_customer_sk = cust_sk;
+
+    IF (spending1 < spending2) THEN
+        RETURN -1;
+    ELSE
+        increase := spending1 - spending2;
+    END IF;
+    RETURN increase;
+
+END;
 $$;
 
 
-select c_customer_sk, increaseInWebSpending(c_customer_sk) 
-from customer
-where c_customer_sk in 
-	(select ws_bill_customer_sk
-	from web_sales_history, date_dim
-	where d_date_sk = ws_sold_date_sk
-		and d_year = 2000
+SELECT c_customer_sk, increaseInWebSpending(c_customer_sk)
+  FROM customer
+ WHERE c_customer_sk IN
+       (SELECT ws_bill_customer_sk
+          FROM web_sales_history,
+               date_dim
+         WHERE d_date_sk = ws_sold_date_sk
+           AND d_year = 2000
 
-	INTERSECT
+     INTERSECT
 
-	select ws_bill_customer_sk
-	from web_sales_history, date_dim
-	where d_date_sk = ws_sold_date_sk
-		and d_year = 2001
-	)
-	and increaseInWebSpending(c_customer_sk) > 0;
+        SELECT ws_bill_customer_sk
+          FROM web_sales_history,
+               date_dim
+         WHERE d_date_sk = ws_sold_date_sk
+           AND d_year = 2001)
+   AND increaseInWebSpending(c_customer_sk) > 0;

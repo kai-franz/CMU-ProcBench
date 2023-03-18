@@ -1,20 +1,21 @@
 --Generate a random integer between given lower and upper bounds Called from sudf_11_genRandomChar
 
-CREATE or REPLACE FUNCTION genRandomInt
-(
-  lower  INT,
-  upper  INT,
-  rand   FLOAT
+CREATE OR REPLACE FUNCTION genRandomInt(
+    lower INT,
+    upper INT,
+    rand FLOAT
 )
-RETURNS INT
-language plpgsql
-as $$
-declare
+    RETURNS INT
+    LANGUAGE plpgsql
+AS
+$$
+DECLARE
     result INT;
-    range int;
+    range  INT;
 BEGIN
-  range := upper - lower + 1;
-  result := FLOOR(rand * range + lower);
-  RETURN result;
-END; $$
+    range := upper - lower + 1;
+    result := FLOOR(rand * range + lower);
+    RETURN result;
+END;
+$$
 

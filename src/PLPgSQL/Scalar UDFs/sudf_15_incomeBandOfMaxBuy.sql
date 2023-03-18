@@ -1,49 +1,57 @@
 --for each store, find the income band of the customer who does maximum purchases(quantity wise)
 
-create or replace function incomeBandOfMaxBuyCustomer(storeNumber int)
-returns varchar(50)
-language plpgsql
-as
+CREATE OR REPLACE FUNCTION incomeBandOfMaxBuyCustomer(storeNumber INT)
+    RETURNS VARCHAR(50)
+    LANGUAGE plpgsql
+AS
 $$
-declare
-    incomeband int;
-	cust int;
-	hhdemo int;
-	cntVar int;
-	cLevel varchar(50);
-begin 
-	select ss_customer_sk , c_current_hdemo_sk , count(*) 
-    into cust, hhdemo, cntVar
-	from store_sales_history, customer
-	where ss_store_sk = storeNumber and c_customer_sk=ss_customer_sk
-	group by ss_customer_sk, c_current_hdemo_sk
-	having count(*) =(select max(cnt) from 
-			(select ss_customer_sk, c_current_hdemo_sk, count(*) as cnt
-			from store_sales_history, customer
-			where ss_store_sk = storeNumber
-			and c_customer_sk=ss_customer_sk group by ss_customer_sk, c_current_hdemo_sk having ss_customer_sk IS NOT NULL ) tbl);
-    
-    select hd_income_band_sk into incomeband from household_demographics where hd_demo_sk = hhdemo;
+DECLARE
+    incomeband INT;
+    cust       INT;
+    hhdemo     INT;
+    cntVar     INT;
+    cLevel     VARCHAR(50);
+BEGIN
+    SELECT ss_customer_sk, c_current_hdemo_sk, COUNT(*)
+      INTO cust, hhdemo, cntVar
+      FROM store_sales_history,
+           customer
+     WHERE ss_store_sk = storeNumber
+       AND c_customer_sk = ss_customer_sk
+     GROUP BY ss_customer_sk, c_current_hdemo_sk
+    HAVING COUNT(*) = (SELECT MAX(cnt)
+                         FROM (SELECT ss_customer_sk, c_current_hdemo_sk, COUNT(*) AS cnt
+                                 FROM store_sales_history,
+                                      customer
+                                WHERE ss_store_sk = storeNumber
+                                  AND c_customer_sk = ss_customer_sk
+                                GROUP BY ss_customer_sk, c_current_hdemo_sk
+                               HAVING ss_customer_sk IS NOT NULL) tbl);
+
+    SELECT hd_income_band_sk INTO incomeband FROM household_demographics WHERE hd_demo_sk = hhdemo;
 
 
-	if(incomeband>=0 and incomeband<=3) then
-		 cLevel := 'low';
-    end if;
-	if(incomeband>=4 and incomeband<=7) then
-		 cLevel := 'lowerMiddle';
-	end if;
-    if(incomeband>=8 and incomeband<=11) then
-		 cLevel := 'upperMiddle';
-	end if;
-    if(incomeband>=12 and incomeband<=16) then
-		 cLevel := 'high';
-	end if;
-    if(incomeband>=17 and incomeband<=20) then
-		 cLevel := 'affluent';
-	end if;
-	return cLevel;
-end;
+    IF (incomeband >= 0 AND incomeband <= 3) THEN
+        cLevel := 'low';
+    END IF;
+    IF (incomeband >= 4 AND incomeband <= 7) THEN
+        cLevel := 'lowerMiddle';
+    END IF;
+    IF (incomeband >= 8 AND incomeband <= 11) THEN
+        cLevel := 'upperMiddle';
+    END IF;
+    IF (incomeband >= 12 AND incomeband <= 16) THEN
+        cLevel := 'high';
+    END IF;
+    IF (incomeband >= 17 AND incomeband <= 20) THEN
+        cLevel := 'affluent';
+    END IF;
+    RETURN cLevel;
+END;
 $$;
 
 --inovocation query
-select s_store_sk from store where incomeBandOfMaxBuyCustomer(s_store_sk)='lowerMiddle' order by s_store_sk;
+SELECT s_store_sk
+  FROM store
+ WHERE incomeBandOfMaxBuyCustomer(s_store_sk) = 'lowerMiddle'
+ ORDER BY s_store_sk;

@@ -1,12 +1,12 @@
-create or replace function maxPromoChannel(year int)
-returns varchar
-language plpgsql
-as
+CREATE OR REPLACE FUNCTION maxPromoChannel(year INT)
+    RETURNS VARCHAR
+    LANGUAGE plpgsql
+AS
 $$
-declare
-begin
-	return promoVsNoPromoItems(year);
-end;
+DECLARE
+BEGIN
+    RETURN promoVsNoPromoItems(year);
+END;
 $$;
 
-select maxPromoChannel(2001);
+SELECT maxPromoChannel(2001);

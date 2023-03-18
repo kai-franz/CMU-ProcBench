@@ -1,34 +1,36 @@
-create or replace function getManufact_simple(itm int)
-returns char(50)
-language plpgsql
-as
+CREATE OR REPLACE FUNCTION getManufact_simple(itm INT)
+    RETURNS CHAR(50)
+    LANGUAGE plpgsql
+AS
 $$
-begin
-	return (select i_manufact from item where i_item_sk = itm);
-end; $$;
+BEGIN
+    RETURN (SELECT i_manufact FROM item WHERE i_item_sk = itm);
+END;
+$$;
 
 
 --complex calling query
-select maxsoldItem 
-from
-(select ss_item_sk as maxSoldItem 
-from 
-	(select ss_item_sk, sum(cnt) totalCnt
-	from
-		(select ss_item_sk, count(*) cnt from store_sales_history group by ss_item_sk 
-		union all
-		select cs_item_sk, count(*) cnt from catalog_sales_history group by cs_item_sk
-		union all
-		select ws_item_sk, count(*) cnt from web_sales_history group by ws_item_sk )t1
-	group by ss_item_sk)t2
-order by totalCnt desc
-limit 25000
-)t3
-where getManufact_simple(maxSoldItem) = 'oughtn st';
+SELECT maxsoldItem
+  FROM (SELECT ss_item_sk AS maxSoldItem
+          FROM (SELECT ss_item_sk, SUM(cnt) totalCnt
+                  FROM (SELECT ss_item_sk, COUNT(*) cnt
+                          FROM store_sales_history
+                         GROUP BY ss_item_sk
+                         UNION ALL
+                        SELECT cs_item_sk, COUNT(*) cnt
+                          FROM catalog_sales_history
+                         GROUP BY cs_item_sk
+                         UNION ALL
+                        SELECT ws_item_sk, COUNT(*) cnt
+                          FROM web_sales_history
+                         GROUP BY ws_item_sk) t1
+                 GROUP BY ss_item_sk) t2
+         ORDER BY totalCnt DESC
+         LIMIT 25000) t3
+ WHERE getManufact_simple(maxSoldItem) = 'oughtn st';
 
 
 --Simple Calling Query
-select ws_item_sk 
-from
-	(select ws_item_sk, count(*) cnt from web_sales group by ws_item_sk order by cnt limit 25000)t1
-where getManufact_simple(ws_item_sk) = 'oughtn st';
+SELECT ws_item_sk
+  FROM (SELECT ws_item_sk, COUNT(*) cnt FROM web_sales GROUP BY ws_item_sk ORDER BY cnt LIMIT 25000) t1
+ WHERE getManufact_simple(ws_item_sk) = 'oughtn st';
