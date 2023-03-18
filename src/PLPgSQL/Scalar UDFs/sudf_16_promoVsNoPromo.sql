@@ -39,7 +39,7 @@ BEGIN
 
   promoCountCatalog := (SELECT  SUM(t1.cnt)
                         FROM (SELECT cs_item_sk, cs_promo_sk, COUNT(*) AS cnt
-                              FROM catalog_sale_history, promotion, date_dim
+                              FROM catalog_sales_history, promotion, date_dim
                               WHERE cs_sold_date_sk = d_date_sk
                                 AND d_year = givenYear
                                 AND cs_promo_sk = p_promo_sk

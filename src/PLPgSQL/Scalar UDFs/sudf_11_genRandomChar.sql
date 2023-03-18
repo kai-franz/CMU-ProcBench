@@ -17,4 +17,4 @@ BEGIN
         rslt := SUBSTR(chars, resultIndex, 1);
     END IF;
     RETURN rslt;
-END; $$
+END; $$;

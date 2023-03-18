@@ -5,7 +5,7 @@ as
 $$
 begin
 	return (select i_manufact from item where i_item_sk = itm);
-end; $$
+end; $$;
 
 
 --complex calling query

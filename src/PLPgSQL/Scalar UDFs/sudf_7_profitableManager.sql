@@ -22,4 +22,4 @@ END
 $$ LANGUAGE PLPGSQL;
 
 --invocation query
-select s_manager from store where dbo.profitableManager(s_manager, 2001)<=0;
+select s_manager from store where profitableManager(s_manager, 2001)<=0;

@@ -7,6 +7,6 @@ declare
 begin
 	return promoVsNoPromoItems(year);
 end;
-$$
+$$;
 
-select dbo.maxPromoChannel(2001);
+select maxPromoChannel(2001);

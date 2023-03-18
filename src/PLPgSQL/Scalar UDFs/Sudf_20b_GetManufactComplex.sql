@@ -17,7 +17,7 @@ begin
 		man := 'outdated item'; --implies that this item is not sold in a recent year at all and is probably outdated
 	end if;
 	return man;
-end; $$
+end; $$;
 
 --Complex Calling Query
 select maxsoldItem 

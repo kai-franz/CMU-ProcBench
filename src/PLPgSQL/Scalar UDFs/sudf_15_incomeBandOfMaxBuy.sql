@@ -15,12 +15,12 @@ begin
 	select ss_customer_sk , c_current_hdemo_sk , count(*) 
     into cust, hhdemo, cntVar
 	from store_sales_history, customer
-	where ss_store_sk = 1 and c_customer_sk=ss_customer_sk
+	where ss_store_sk = storeNumber and c_customer_sk=ss_customer_sk
 	group by ss_customer_sk, c_current_hdemo_sk
 	having count(*) =(select max(cnt) from 
 			(select ss_customer_sk, c_current_hdemo_sk, count(*) as cnt
 			from store_sales_history, customer
-			where ss_store_sk = 1
+			where ss_store_sk = storeNumber
 			and c_customer_sk=ss_customer_sk group by ss_customer_sk, c_current_hdemo_sk having ss_customer_sk IS NOT NULL ) tbl);
     
     select hd_income_band_sk into incomeband from household_demographics where hd_demo_sk = hhdemo;

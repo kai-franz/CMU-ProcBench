@@ -41,6 +41,6 @@ begin
 		return 'no correlation';
 	end if;
 	return 'error';
-end; $$
+end; $$;
 
 select wealth_shipCostCorrelation_cat()

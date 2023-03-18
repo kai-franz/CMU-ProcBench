@@ -25,7 +25,7 @@ begin
 
 	ratio := cast (morningSale as float) / cast (eveningSale as float);
 	return ratio;
-end; $$
+end; $$;
 
 --invocation query
 select t.depCount, morningToEveRatio(t.depCount) from

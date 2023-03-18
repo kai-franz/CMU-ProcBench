@@ -43,4 +43,4 @@ begin
 end;
 $$;
 
-select c_customer_sk, maxPurchaseChannel(c_customer_sk, 2000, 2020) as channel from customer
+select c_customer_sk, maxPurchaseChannel(c_customer_sk, (select min(d_date_sk) from date_dim where d_year = 2000), (select max(d_date_sk) from date_dim where d_year = 2020)) as channel from customer
