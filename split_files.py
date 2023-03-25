@@ -1,5 +1,5 @@
-# Splits a file containing a UDF and a query into two files, one containing the UDF and one containing the query.
-# usage:   python get_results.py <input_dir> <query_output_dir> <udf_output_dir>
+# Splits a file containing a UDF and a query into two files, one containing the UDFs and one containing the queries.
+# Usage:   python split_files.py <input_dir> <query_output_dir> <udf_output_dir>
 
 import os
 import sys
