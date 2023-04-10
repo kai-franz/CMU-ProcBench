@@ -41,7 +41,7 @@ END;
 $$;
 
 
-SELECT c_customer_sk, increaseInWebSpending(c_customer_sk)
+SELECT c_customer_sk
   FROM customer
  WHERE c_customer_sk IN
        (SELECT ws_bill_customer_sk
