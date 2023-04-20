@@ -25,43 +25,43 @@ AS $$
         
         FROM (SELECT count(temp_key9) AS agg_0
                    , temp_key9
-              FROM ((SELECT todatesk AS todatesk9
+              FROM ((SELECT temp_key AS temp_key9
                           , fromdatesk AS fromdatesk9
-                          , temp_key AS temp_key9
+                          , todatesk AS todatesk9
                           , ckey AS ckey9
-                     FROM temp AS temp9) AS t14
-                    LEFT JOIN store_sales_history AS store_sales_history1 ON (ss_sold_date_sk <= todatesk9)
+                     FROM temp AS temp9) AS t17
+                    LEFT JOIN store_sales_history AS store_sales_history2 ON (ss_sold_date_sk <= todatesk9)
                                                                          AND (ss_sold_date_sk >= fromdatesk9)
-                                                                         AND (ss_customer_sk = ckey9)) AS join13
-              GROUP BY temp_key9) AS t15;
+                                                                         AND (ss_customer_sk = ckey9)) AS join22
+              GROUP BY temp_key9) AS t18;
         SELECT array_agg(agg_0 ORDER BY temp_key10 NULLS LAST)
         INTO numsalesfromcatalog
         
         FROM (SELECT count(temp_key10) AS agg_0
                    , temp_key10
-              FROM ((SELECT todatesk AS todatesk10
+              FROM ((SELECT temp_key AS temp_key10
                           , fromdatesk AS fromdatesk10
-                          , temp_key AS temp_key10
+                          , todatesk AS todatesk10
                           , ckey AS ckey10
-                     FROM temp AS temp10) AS t16
+                     FROM temp AS temp10) AS t19
                     LEFT JOIN catalog_sales_history AS catalog_sales_history2 ON (cs_sold_date_sk <= todatesk10)
                                                                              AND (cs_sold_date_sk >= fromdatesk10)
-                                                                             AND (cs_bill_customer_sk = ckey10)) AS join14
-              GROUP BY temp_key10) AS t17;
+                                                                             AND (cs_bill_customer_sk = ckey10)) AS join23
+              GROUP BY temp_key10) AS t20;
         SELECT array_agg(agg_0 ORDER BY temp_key11 NULLS LAST)
         INTO numsalesfromweb
         
         FROM (SELECT count(temp_key11) AS agg_0
                    , temp_key11
-              FROM ((SELECT todatesk AS todatesk11
+              FROM ((SELECT temp_key AS temp_key11
                           , fromdatesk AS fromdatesk11
-                          , temp_key AS temp_key11
+                          , todatesk AS todatesk11
                           , ckey AS ckey11
-                     FROM temp AS temp11) AS t18
-                    LEFT JOIN web_sales_history AS web_sales_history5 ON (ws_sold_date_sk <= todatesk11)
+                     FROM temp AS temp11) AS t21
+                    LEFT JOIN web_sales_history AS web_sales_history7 ON (ws_sold_date_sk <= todatesk11)
                                                                      AND (ws_sold_date_sk >= fromdatesk11)
-                                                                     AND (ws_bill_customer_sk = ckey11)) AS join15
-              GROUP BY temp_key11) AS t19;
+                                                                     AND (ws_bill_customer_sk = ckey11)) AS join24
+              GROUP BY temp_key11) AS t22;
         FOR i IN ARRAY_LOWER(ckey_batch, 1)..ARRAY_UPPER(ckey_batch, 1) LOOP
             IF ((numsalesfromstore)[i] > (numsalesfromcatalog)[i]) THEN
                 maxchannel[i] := ('Store');

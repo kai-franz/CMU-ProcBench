@@ -31,13 +31,13 @@ AS $$
                    , temp_key7
               FROM ((SELECT temp_key AS temp_key7
                           , cust_sk AS cust_sk7
-                     FROM temp AS temp7) AS t10
-                    LEFT JOIN(web_sales_history AS web_sales_history3
-                              CROSS JOIN date_dim AS date_dim2) AS join9
-                       ON (ws_bill_customer_sk = cust_sk7)) AS join10
+                     FROM temp AS temp7) AS t13
+                    LEFT JOIN(web_sales_history AS web_sales_history5
+                              CROSS JOIN date_dim AS date_dim3) AS join18
+                       ON (ws_bill_customer_sk = cust_sk7)) AS join19
               WHERE (d_date_sk = ws_sold_date_sk)
                 AND (d_year = 2001)
-              GROUP BY temp_key7) AS t11;
+              GROUP BY temp_key7) AS t14;
         SELECT array_agg(agg_0 ORDER BY temp_key8 NULLS LAST)
         INTO spending2
         
@@ -45,13 +45,13 @@ AS $$
                    , temp_key8
               FROM ((SELECT temp_key AS temp_key8
                           , cust_sk AS cust_sk8
-                     FROM temp AS temp8) AS t12
-                    LEFT JOIN(web_sales_history AS web_sales_history4
-                              CROSS JOIN date_dim AS date_dim3) AS join11
-                       ON (ws_bill_customer_sk = cust_sk8)) AS join12
+                     FROM temp AS temp8) AS t15
+                    LEFT JOIN(web_sales_history AS web_sales_history6
+                              CROSS JOIN date_dim AS date_dim4) AS join20
+                       ON (ws_bill_customer_sk = cust_sk8)) AS join21
               WHERE (d_date_sk = ws_sold_date_sk)
                 AND (d_year = 2000)
-              GROUP BY temp_key8) AS t13;
+              GROUP BY temp_key8) AS t16;
         FOR i IN ARRAY_LOWER(cust_sk_batch, 1)..ARRAY_UPPER(cust_sk_batch, 1) LOOP
             IF ((spending1)[i] < (spending2)[i]) THEN
                 IF returned[i] IS NULL THEN
@@ -78,7 +78,6 @@ FROM (SELECT unnest(c_customer_sk_batch) AS c_customer_sk
            , unnest(increaseinwebspending_batch(c_customer_sk_batch)) AS increaseinwebspending
       FROM (SELECT array_agg(c_customer_sk ORDER BY c_customer_sk) AS c_customer_sk_batch
             FROM (SELECT c_customer_sk
-                       , increaseinwebspending(c_customer_sk)
                   FROM customer
                   WHERE c_customer_sk IN (SELECT ws_bill_customer_sk
                                           FROM web_sales_history, date_dim

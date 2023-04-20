@@ -24,10 +24,10 @@ AS $$
         
         FROM (SELECT sum(cs_net_paid_inc_ship_tax) AS agg_0
                    , temp_key1
-              FROM ((SELECT qtr AS qtr1
-                          , yr AS yr1
-                          , temp_key AS temp_key1
+              FROM ((SELECT temp_key AS temp_key1
+                          , qtr AS qtr1
                           , amount AS amount1
+                          , yr AS yr1
                           , givenstate AS givenstate1
                      FROM temp AS temp1) AS t1
                     LEFT JOIN(((catalog_sales_history AS catalog_sales_history1
@@ -75,7 +75,6 @@ FROM (SELECT array_agg(ca_state ORDER BY ca_state
       FROM (SELECT ca_state
                  , d_year
                  , d_qoy
-                 , totallargepurchases(ca_state, 1000, d_year, d_qoy)
             FROM customer_address, date_dim
             WHERE d_year IN (1998, 1999, 2000)
               AND (ca_state IS NOT NULL)
