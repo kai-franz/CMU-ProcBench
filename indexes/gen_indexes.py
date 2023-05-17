@@ -1,3 +1,7 @@
+# Given a query, this script will generate all possible indexes that could
+# be used to speed up the query. It does this by finding the set of all column references
+# in the query, and then generating every permutation of every subset of this set.
+
 import itertools
 from pglast import ast, parse_sql
 from pglast.enums import ConstrType
