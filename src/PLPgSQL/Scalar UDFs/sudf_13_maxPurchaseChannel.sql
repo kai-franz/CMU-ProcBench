@@ -47,6 +47,5 @@ END;
 $$;
 
 SELECT c_customer_sk,
-       maxPurchaseChannel(c_customer_sk, (SELECT MIN(d_date_sk) FROM date_dim WHERE d_year = 2000),
-                          (SELECT MAX(d_date_sk) FROM date_dim WHERE d_year = 2020)) AS channel
+       maxPurchaseChannel(c_customer_sk, 2451545, 2459215) AS channel
   FROM customer;
