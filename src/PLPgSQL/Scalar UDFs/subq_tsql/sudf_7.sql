@@ -27,13 +27,13 @@ UPDATE #temp
 
 UPDATE #temp
    SET profitablemanager = 1,
-       returned   = 1
+       returned          = 1
  WHERE p1 = 1
    AND returned = 0;
 
 UPDATE #temp
    SET profitablemanager = 0,
-       returned   = 1
+       returned          = 1
  WHERE p1 = 0
    AND returned = 0;
 

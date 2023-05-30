@@ -38,7 +38,8 @@ UPDATE #temp
 
 
 UPDATE #temp
-   SET p1 = CASE WHEN numSalesFromStore > numSalesFromCatalog THEN 1 ELSE 0 END;
+   SET p1 =
+       CASE WHEN numSalesFromStore > numSalesFromCatalog THEN 1 ELSE 0 END;
 
 UPDATE #temp
    SET maxChannel = 'Store'
