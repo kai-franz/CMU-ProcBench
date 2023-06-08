@@ -1,16 +1,19 @@
+DROP FUNCTION IF EXISTS count_offers_batched;
+DROP TYPE IF EXISTS countoffers_batched_params;
+
 CREATE TYPE countoffers_batched_params AS TABLE
 (
     itemcode INT,
-    amount   INT,
+    amount   FLOAT,
     curcode  CHAR(3)
 );
-
+GO
 
 CREATE OR ALTER FUNCTION count_offers_batched(@r1 countoffers_batched_params READONLY)
     RETURNS @r2 TABLE
                 (
                     itemcode     INT,
-                    amount       INT,
+                    amount       FLOAT,
                     curcode      CHAR(3),
                     cond1        BIT,
                     amount_usd   FLOAT,
@@ -19,7 +22,7 @@ CREATE OR ALTER FUNCTION count_offers_batched(@r1 countoffers_batched_params REA
 BEGIN
 
     DECLARE r1_cursor CURSOR FOR SELECT itemcode, amount, curcode FROM @r1;
-    DECLARE @itemcode INT, @amount INT, @curcode CHAR(3);
+    DECLARE @itemcode INT, @amount FLOAT, @curcode CHAR(3);
     OPEN r1_cursor;
     FETCH NEXT FROM r1_cursor INTO @itemcode, @amount, @curcode;
     WHILE @@FETCH_STATUS = 0
@@ -47,7 +50,7 @@ BEGIN
     MERGE INTO @r2 AS tgt
     USING (SELECT r.itemcode,
                   r.amount_usd,
-                  COUNT(r.itemcode) AS count_offers
+                  COUNT(b.itemid) AS count_offers
              FROM (SELECT DISTINCT itemcode, amount_usd FROM @r2) r
                       LEFT OUTER JOIN buyoffers b
                                       ON b.itemid = r.itemcode AND b.price >= r.amount_usd
@@ -60,13 +63,13 @@ BEGIN
 
     RETURN;
 END
-
+GO
 
 DECLARE @r1 countoffers_batched_params;
 INSERT INTO @r1
 SELECT DISTINCT itemcode, amount, curcode
   FROM sellorders
- WHERE mkt = 'XNSE'
+ WHERE mkt = 'XNSE';
 SELECT orderid
   FROM sellorders so,
        dbo.count_offers_batched(@r1) br
