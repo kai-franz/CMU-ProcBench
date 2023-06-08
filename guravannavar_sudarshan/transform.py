@@ -9,6 +9,9 @@
 # 2. Currency codes are ISO 4217 currency codes.
 import duckdb
 
+EXCHANGE_RATE_RANGE = 10
+PRICE_RANGE = 10
+NUM_ITEMS = 1000
 
 def load_exchange_table(con):
     """
@@ -46,14 +49,30 @@ CREATE TABLE sellorders
     curcode  CHAR(3)
 )""")
 
+    # Use 'serial' sequence to generate primary keys
     con.sql('DROP SEQUENCE IF EXISTS serial')
     con.sql('CREATE SEQUENCE serial START 1')
 
-    con.sql("""
+#     con.sql("""
+# INSERT INTO sellorders (orderid, mkt, itemcode, amount, curcode)
+# SELECT nextval('serial'), iso_mic, random() * 10000, random() * 100, AlphabeticCode
+#   FROM exchanges, currencies
+#  USING SAMPLE reservoir (1000000 ROWS) REPEATABLE (1)""")
+
+
+
+    con.sql(f"""
 INSERT INTO sellorders (orderid, mkt, itemcode, amount, curcode)
-SELECT nextval('serial'), iso_mic, random() * 10000, random() * 100, AlphabeticCode 
-  FROM exchanges, currencies 
- USING SAMPLE reservoir (100000 ROWS) REPEATABLE (1)""")
+  WITH numbered_codes AS (SELECT AlphabeticCode AS cur_code, ROW_NUMBER() OVER () AS id FROM currencies),
+       numbered_mics AS (SELECT iso_mic, ROW_NUMBER() OVER () AS id FROM exchanges),
+       random_vals AS (SELECT nextval('serial')                             AS orderid,
+                              CAST(ceil(random() * {NUM_ITEMS}) AS INT) AS itemcode,
+                              random() * {PRICE_RANGE} AS amount, cast(ceil(random() * (SELECT MAX (id) FROM numbered_codes)) AS INT) AS random_id, cast(ceil(random() * (SELECT MAX (id) FROM numbered_mics)) AS INT) AS random_mic
+                         FROM RANGE (100000))
+SELECT orderid, iso_mic, itemcode, amount, cur_code
+  FROM random_vals
+           JOIN numbered_codes ON random_vals.random_id = numbered_codes.id
+           JOIN numbered_mics ON random_vals.random_mic = numbered_mics.id""")
 
     # Print out the contents of the sellorders table
     # con.sql("SELECT * FROM sellorders").show()
@@ -65,10 +84,10 @@ SELECT nextval('serial'), iso_mic, random() * 10000, random() * 100, AlphabeticC
 def generate_buyoffers(con):
     con.sql('DROP TABLE IF EXISTS buyoffers')
 
-    con.sql("""
+    con.sql(f"""
 CREATE TABLE buyoffers AS 
-SELECT CAST(random() * 10000 AS INT) AS itemid, 
-       random() * 100 AS price 
+SELECT CAST(ceil(random() * {NUM_ITEMS}) AS INT) AS itemid, 
+       random() * {PRICE_RANGE} AS price 
   FROM range(100000)""")
 
     # Copy the buyoffers table to a CSV file
@@ -78,11 +97,12 @@ SELECT CAST(random() * 10000 AS INT) AS itemid,
 def generate_curexch(con):
     con.sql('DROP TABLE IF EXISTS curexch')
 
-    con.sql("""
+    con.sql(f"""
 CREATE TABLE curexch AS 
+WITH codes AS (SELECT DISTINCT AlphabeticCode FROM currencies)
 SELECT AlphabeticCode AS ccode, 
-       (CASE WHEN ccode = 'USD' THEN 1.0 ELSE random() * 100 END) AS price 
-  FROM currencies
+       (CASE WHEN ccode = 'USD' THEN 1.0 ELSE random() * {EXCHANGE_RATE_RANGE} END) AS price 
+  FROM codes
  WHERE ccode != ''""")
 
     # Copy the curexch table to a CSV file
