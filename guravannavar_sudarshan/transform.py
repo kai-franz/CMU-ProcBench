@@ -11,7 +11,7 @@ import duckdb
 
 EXCHANGE_RATE_RANGE = 10
 PRICE_RANGE = 10
-NUM_ITEMS = 1000
+NUM_ITEMS = 100000000
 
 def load_exchange_table(con):
     """
