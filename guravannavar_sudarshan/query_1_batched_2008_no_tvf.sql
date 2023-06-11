@@ -16,8 +16,6 @@ SELECT DISTINCT itemcode, amount, curcode
  WHERE mkt = 'XNSE';
 
 --------------------- BEGIN UDF -----------------------
-DECLARE r1_cursor CURSOR FOR SELECT itemcode, amount, curcode
-                               FROM @r1;
 DECLARE @itemcode INT, @amount FLOAT, @curcode CHAR(3);
 DECLARE @r2 TABLE
             (
@@ -28,20 +26,16 @@ DECLARE @r2 TABLE
                 amount_usd   FLOAT,
                 count_offers INT
             );
-OPEN r1_cursor;
-FETCH NEXT FROM r1_cursor INTO @itemcode, @amount, @curcode;
-WHILE @@FETCH_STATUS = 0
-    BEGIN
-        DECLARE @amount_usd FLOAT, @cond1 BIT, @count_offers INT;
-        SET @cond1 = IIF((@curcode = 'USD'), 1, 0);
-        IF @cond1 = 1
-            SET @amount_usd = @amount;
+INSERT INTO @r2 (itemcode, amount, curcode)
+SELECT itemcode, amount, curcode
+  FROM @r1;
 
-        INSERT INTO @r2 (itemcode, amount, curcode, cond1, amount_usd, count_offers)
-        VALUES (@itemcode, @amount, @curcode, @cond1, @amount_usd, @count_offers);
+UPDATE @r2
+   SET cond1 = IIF((curcode = 'USD'), 1, 0);
 
-        FETCH NEXT FROM r1_cursor INTO @itemcode, @amount, @curcode;
-    END
+UPDATE @r2
+   SET amount_usd = amount
+ WHERE cond1 = 1;
 
 MERGE INTO @r2 AS tgt
 USING (SELECT r.curcode, c.exchrate
