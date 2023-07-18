@@ -26,7 +26,7 @@ UPDATE state
                                      WHERE cs_bill_customer_sk = ca_address_sk
                                        AND ca_state IS NOT NULL
                                      GROUP BY ca_state
-                                     ORDER BY sm DESC
+                                     ORDER BY sm DESC, ca_state
                                      LIMIT 5) t1
                          INTERSECT
                             SELECT ca_state
@@ -39,7 +39,7 @@ UPDATE state
                                        AND hd_income_band_sk >= 15
                                        AND ca_state IS NOT NULL
                                      GROUP BY ca_state
-                                     ORDER BY cnt DESC
+                                     ORDER BY cnt DESC, ca_state
                                      LIMIT 5) t2) t3)
  WHERE NOT returned;
 

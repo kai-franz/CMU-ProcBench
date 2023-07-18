@@ -1,13 +1,13 @@
 SELECT s_manager
-  FROM store
+  FROM store s1
  WHERE (SELECT _4.retval
           FROM (SELECT (SELECT SUM(ss_net_profit)
-                          FROM store,
+                          FROM store s2,
                                store_sales_history,
                                date_dim
                          WHERE ss_sold_date_sk = d_date_sk
                            AND d_year = 2001
-                           AND s_manager = s_manager
+                           AND s1.s_manager = s2.s_manager
                            AND s_store_sk = ss_store_sk) AS netprofit) AS _1(netprofit),
                LATERAL (SELECT CASE
                                    WHEN _1.netprofit > 0
